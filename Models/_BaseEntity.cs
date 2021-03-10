@@ -6,7 +6,7 @@ namespace TestWebApi.Models
 
     public abstract class BaseEntity
     {
-        public virtual Guid Id { get; set; }
+        public virtual int Id { get; set; }
 
     }
 }

@@ -1,5 +1,6 @@
 using TestWebApi.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace TestWebApi.Data
 {
@@ -18,7 +19,7 @@ namespace TestWebApi.Data
         {
             builder.Entity<User>().HasData(new User
             {
-                Id = new System.Guid(),
+                Id = 1,
                 Username = "Administrator",
                 LastName = "Last Name",
                 Password = "FakePassword*!",
@@ -27,7 +28,7 @@ namespace TestWebApi.Data
 
             builder.Entity<User>().HasData(new User
             {
-                Id = new System.Guid(),
+                Id = 2,
                 Username = "Seller",
                 LastName = "Last Name",
                 Password = "FakePassword*!",
@@ -36,7 +37,7 @@ namespace TestWebApi.Data
 
             builder.Entity<User>().HasData(new User
             {
-                Id = new System.Guid(),
+                Id = 3,
                 Username = "Client",
                 LastName = "Last Name",
                 Password = "FakePassword*!",

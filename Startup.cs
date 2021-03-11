@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using app.Models;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -24,6 +24,12 @@ using TestWebApi.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Okta.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using TestWebApi.Services;
+using TestWebApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TestWebApi
 {
@@ -40,21 +46,36 @@ namespace TestWebApi
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddDbContext<DataContext>(x => x.UseMySQL(Configuration.GetConnectionString("MySqlConnection")));
-            services.Configure<OktaSettings>(Configuration.GetSection("Okta"));
-            services.AddAuthentication(options =>
-              {
-                  options.DefaultAuthenticateScheme = OktaDefaults.ApiAuthenticationScheme;
-                  options.DefaultChallengeScheme = OktaDefaults.ApiAuthenticationScheme;
-                  options.DefaultSignInScheme = OktaDefaults.ApiAuthenticationScheme;
-              })
-            .AddOktaWebApi(new OktaWebApiOptions()
-            {
-                OktaDomain = Configuration["Okta:OktaDomain"],
-            });
+            string domain = $"https://{Configuration["Auth0:Domain"]}/";
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = domain;
+                    options.Audience = Configuration["Auth0:Audience"];
 
-            services.AddAuthorization();
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        NameClaimType = ClaimTypes.NameIdentifier
+                    };
+                });
+
+            services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("edit:products", policy => policy.Requirements.Add(new HasScopeRequirement("edit:products", domain)));
+                    options.AddPolicy("delete:products", policy => policy.Requirements.Add(new HasScopeRequirement("delete:products", domain)));
+                });
+
+            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+
+            services.AddDbContext<DataContext>(x => x.UseMySQL(Configuration.GetConnectionString("MySqlConnection")));
+
+
+            services.AddTransient<IRepository<Product>, Repository<Product>>();
+
             services.AddControllers();
+
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TestWebApi", Version = "v1" });
@@ -71,12 +92,11 @@ namespace TestWebApi
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TestWebApi v1"));
             }
 
-            app.UseHttpsRedirection();
+
 
             app.UseRouting();
 
             app.UseAuthentication();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

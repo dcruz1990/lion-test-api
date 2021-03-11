@@ -40,7 +40,10 @@ namespace TestWebApi.Services
             return await _dbContext.Set<T>().SingleOrDefaultAsync(e => e.Id == id);
         }
 
-
+        public async Task<List<T>> ListAllOrders()
+        {
+            return await _dbContext.Set<T>().Include("productDetailOnOrder").ToListAsync();
+        }
 
         public async Task<List<T>> ListAsync()
         {

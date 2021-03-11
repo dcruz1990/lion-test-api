@@ -30,6 +30,7 @@ using TestWebApi.Services;
 using TestWebApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace TestWebApi
 {
@@ -46,9 +47,10 @@ namespace TestWebApi
         public void ConfigureServices(IServiceCollection services)
         {
 
+
             string domain = $"https://{Configuration["Auth0:Domain"]}/";
-            services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.Authority = domain;
@@ -72,13 +74,17 @@ namespace TestWebApi
 
 
             services.AddTransient<IRepository<Product>, Repository<Product>>();
+            services.AddTransient<IRepository<Order>, Repository<Order>>();
+            services.AddTransient<IOrderRepository<Order>, OrderRepository<Order>>();
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                  options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                );
 
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "TestWebApi", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "LionTestWebSalesAPI", Version = "v1" });
             });
         }
 

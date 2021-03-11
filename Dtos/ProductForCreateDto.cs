@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TestWebApi.Models
 {
-    public class Product : BaseEntity
+    public class ProductForCreateDto
     {
         [Required]
         public string Name { get; set; }
@@ -13,10 +13,6 @@ namespace TestWebApi.Models
         public string Slug { get; set; }
         [Required]
         public float Price { get; set; }
-
-        public User User { get; set; }
-
-        public int UserId { get; set; }
 
     }
 }

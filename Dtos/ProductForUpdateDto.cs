@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TestWebApi.Models
+namespace TestWebApi.Dtos
 {
-    public class Product : BaseEntity
+    public class ProductForUpdateDto
     {
         [Required]
         public string Name { get; set; }
@@ -14,9 +14,7 @@ namespace TestWebApi.Models
         [Required]
         public float Price { get; set; }
 
-        public User User { get; set; }
 
-        public int UserId { get; set; }
 
     }
 }

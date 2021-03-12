@@ -68,6 +68,7 @@ namespace TestWebApi
                 {
                     options.AddPolicy("edit:products", policy => policy.Requirements.Add(new HasScopeRequirement("edit:products", domain)));
                     options.AddPolicy("delete:products", policy => policy.Requirements.Add(new HasScopeRequirement("delete:products", domain)));
+                    options.AddPolicy("role:administrator", policy => policy.Requirements.Add(new HasScopeRequirement("role:administrator", domain)));
                 });
 
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();

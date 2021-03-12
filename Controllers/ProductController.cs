@@ -40,6 +40,7 @@ namespace coding.API.Controllers
         /// <returns>All the products on the API</returns>
         /// <response code="200">Returns all products</response>
 
+
         [HttpGet("all")]
         public async Task<IActionResult> GetAllProducts()
         {

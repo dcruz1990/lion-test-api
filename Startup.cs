@@ -77,6 +77,7 @@ namespace TestWebApi
 
 
             services.AddTransient<IRepository<Product>, Repository<Product>>();
+            services.AddTransient<IRepository<User>, Repository<User>>();
             services.AddTransient<IRepository<Order>, Repository<Order>>();
             services.AddTransient<IOrderRepository<Order>, OrderRepository<Order>>();
 

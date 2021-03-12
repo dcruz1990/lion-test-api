@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.AspNetCore.Http;
 
-namespace coding.API.Controllers
+namespace TestWebApi.Controllers
 {
     [Produces("application/json")]
     [Route("[controller]")]

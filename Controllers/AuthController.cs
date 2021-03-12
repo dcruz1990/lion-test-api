@@ -11,11 +11,12 @@ using System.Text;
 using TestWebApi.Models;
 using TestWebApi.Services;
 using TestWebApi.Dtos;
+using Microsoft.AspNetCore.Authentication;
 
-namespace coding.API.Controllers
+namespace TestWebApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _config;
@@ -32,9 +33,9 @@ namespace coding.API.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginUserDto userForLoginDto)
+        public async Task Login()
         {
-            return Ok("Works");
+            await HttpContext.ChallengeAsync("Bearer", new AuthenticationProperties() { RedirectUri = "/" });
 
         }
     }

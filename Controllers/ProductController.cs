@@ -11,7 +11,7 @@ using TestWebApi.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
-namespace coding.API.Controllers
+namespace TestWebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]

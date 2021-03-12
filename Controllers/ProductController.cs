@@ -9,6 +9,7 @@ using TestWebApi.Models;
 using TestWebApi.Services;
 using TestWebApi.Dtos;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace coding.API.Controllers
 {
@@ -28,6 +29,16 @@ namespace coding.API.Controllers
         }
 
 
+        /// <summary>
+        /// List all products
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /all
+        /// </remarks>
+        /// <returns>All the products on the API</returns>
+        /// <response code="200">Returns all products</response>
 
         [HttpGet("all")]
         public async Task<IActionResult> GetAllProducts()
@@ -38,7 +49,27 @@ namespace coding.API.Controllers
 
         }
 
+        /// <summary>
+        /// Create a new product
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /new 
+        ///            {
+        ///        "name": "Bread",
+        ///        "description": "A fresh bread!",
+        ///        "ammount": 200,
+        ///        "slug": "bread",
+        ///        "price": 2
+        ///        }
+        /// </remarks>
+        /// <returns>The created product</returns>
+        /// <response code="201">Returns the created product</response>
+        /// <response code="401">If the user dont have the given role to post products</response> 
         [HttpPost("new")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> NewProduct(ProductForCreateDto newProduct, int UserId)
         {
             // Check user Roles If user isnt seller or admin
@@ -76,7 +107,24 @@ namespace coding.API.Controllers
 
         }
 
+        /// <summary>
+        /// Edit product if the user owns it or is admin
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /1/edit 
+        /// </remarks>
+        /// <returns>A status code 204</returns>
+        /// <response code="204">No content</response>
+        /// <response code="400">If there was a problem editing the order on db</response> 
+        /// <response code="400">If the user hasnt ownership of the product</response> 
+        /// <response code="401">If the user hasnt access to edit</response> 
+
         [HttpPut("{productId}/edit")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> EditProduct(int UserId, int productId, ProductForUpdateDto updatedData)
         {
             if (UserId == 1 || UserId == 2)
@@ -85,19 +133,26 @@ namespace coding.API.Controllers
                 // Get the product from the db
                 var product = await _ProductDal.GetById(productId);
 
+                // Dummy user validation
+                if (product.UserId == UserId)
+                {
 
-                // Dummy assignement of properties, we can use mappers to save lines
-                product.Ammount = updatedData.Ammount;
-                product.Description = updatedData.Description;
-                product.Name = updatedData.Name;
-                product.Price = updatedData.Price;
-                product.Slug = updatedData.Slug;
+                    // Dummy assignement of properties, we can use mappers to save lines
+                    product.Ammount = updatedData.Ammount;
+                    product.Description = updatedData.Description;
+                    product.Name = updatedData.Name;
+                    product.Price = updatedData.Price;
+                    product.Slug = updatedData.Slug;
 
-                // Call the DAL to update the product info
-                var updated = await _ProductDal.Update(product);
+                    // Call the DAL to update the product info
+                    var updated = await _ProductDal.Update(product);
 
-                // Return the REST Verb according to the operation of update
-                return NoContent();
+                    // Return the REST Verb according to the operation of update
+                    return NoContent();
+                }
+
+
+                return BadRequest("Sorry, that product doesnt belong to you");
 
             }
 
@@ -106,6 +161,16 @@ namespace coding.API.Controllers
 
         }
 
+        /// <summary>
+        /// Delete product, only by admins or owner
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE /1/delete 
+        /// </remarks>
+        /// <returns>A status code 204</returns>
+        /// <response code="204">No content</response>
         [HttpDelete("{productId}/delete")]
         public async Task<IActionResult> Delete(int UserId, int productId)
         {
